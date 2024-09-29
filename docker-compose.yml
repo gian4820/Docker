@@ -1,0 +1,84 @@
+version: '3'
+services:
+  rundeck1_nginx:
+    image: rundeckpro/enterprise:4.6.1
+    hostname: rundeck1_nginx
+    container_name: rundeck1_nginx
+    links:
+      - postgres
+    environment:
+      RUNDECK_URL: http://localhost:4440
+      RUNDECK_GRAILS_URL: http://localhost
+      RUNDECK_SERVER_ADDRESS: 0.0.0.0
+      RUNDECK_DATABASE_DRIVER: org.postgresql.Driver
+      RUNDECK_DATABASE_USERNAME: rundeck
+      RUNDECK_DATABASE_PASSWORD: rundeck123
+      RUNDECK_DATABASE_URL: jdbc:postgresql://postgres/rundeck?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+      #generados con uuidgen
+      RUNDECK_SERVER_UUID: 4C96B19F-8A33-4062-9CA0-CB9C657B9780
+      RUNDECK_SERVER_FORWARDED: 'true'
+      #configuracion del cluster
+      RUNDECK_PLUGIN_CLUSTER_HEARTBEAT_CONSIDERDEAD: 180
+      RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_POLICY: any
+      RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_DELAY: 30
+      RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_SLEEP: 30
+      RUNDECK_PLUGIN_CLUSTER_REMOTEEXECUTION_POLICY: RoundRobin
+      RUNDECK_PLUGIN_CLUSTER_REMOTEEXECUTION_PREFERREDTAGS: .*
+
+    volumes:
+      - ./rundeckpro-license.key:/home/rundeck/etc/rundeckpro-license.key
+
+  rundeck2_nginx:
+    image: rundeckpro/enterprise:4.6.1
+    hostname: rundeck2_nginx
+    container_name: rundeck2_nginx
+    links:
+      - postgres
+    environment:
+      RUNDECK_URL: http://localhost:4440
+      RUNDECK_GRAILS_URL: http://localhost
+      RUNDECK_SERVER_ADDRESS: 0.0.0.0
+      RUNDECK_DATABASE_DRIVER: org.postgresql.Driver
+      RUNDECK_DATABASE_USERNAME: rundeck
+      RUNDECK_DATABASE_PASSWORD: rundeck123
+      RUNDECK_DATABASE_URL: jdbc:postgresql://postgres/rundeck?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+      #generados con uuidgen
+      RUNDECK_SERVER_UUID: 1FC16DA1-F17B-4E4A-AE35-3C52598D8FD6
+      RUNDECK_SERVER_FORWARDED: 'true'
+      #configuracion del cluster
+      RUNDECK_PLUGIN_CLUSTER_HEARTBEAT_CONSIDERDEAD: 180
+      RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_POLICY: any
+      RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_DELAY: 30
+      RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_SLEEP: 30
+      RUNDECK_PLUGIN_CLUSTER_REMOTEEXECUTION_POLICY: RoundRobin
+      RUNDECK_PLUGIN_CLUSTER_REMOTEEXECUTION_PREFERREDTAGS: .*
+    volumes:
+    - ./rundeckpro-license.key:/home/rundeck/etc/rundeckpro-license.key
+
+#DB     
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: rundeck
+      POSTGRES_USER: rundeck
+      POSTGRES_PASSWORD: rundeck123
+    volumes:
+      - ./database:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
+    
+#nginx        
+  ngnix_server:
+    image: nginx:latest
+    ports: 
+      - 80:80
+    expose: 
+      - 80
+    volumes: 
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - rundeck1_nginx
+      - rundeck2_nginx
