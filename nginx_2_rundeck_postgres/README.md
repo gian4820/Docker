@@ -1,4 +1,4 @@
 DOCKER COMPOSE WITH:
-* Cluster of Rundeck
+* Rundeck Cluster
 * NGINX LoadBalancer
 * Postgres DB
