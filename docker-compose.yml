@@ -1,0 +1,96 @@
+version: '3'
+
+services:
+    
+    rundeck1:
+        image: rundeckpro/enterprise:5.2.0
+        container_name: rundeck1
+        links:
+          - postgres
+        environment:
+            RUNDECK_URL: http://localhost:4440
+            RUNDECK_GRAILS_URL: http://localhost:4440
+            RUNDECK_SERVER_ADDRESS: 0.0.0.0
+            RUNDECK_DATABASE_DRIVER: org.postgresql.Driver
+            RUNDECK_DATABASE_USERNAME: rundeckuser
+            RUNDECK_DATABASE_PASSWORD: rundeckpassword
+            RUNDECK_DATABASE_URL: jdbc:postgresql://postgres/rundeck?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+            #generados con uuidgen
+            RUNDECK_SERVER_UUID: 4C96B19F-8A33-4062-9CA0-CB9C657B9780
+            RUNDECK_SERVER_FORWARDED: 'true'
+            #remote execution 
+            RUNDECK_PLUGIN_CLUSTER_REMOTEEXECUTION_ENABLED: 'true'
+            RUNDECK_PLUGIN_CLUSTER_REMOTEEXECUTION_POLICY: RoundRobin
+            RUNDECK_PLUGIN_CLUSTER_REMOTEEXECUTION_CONFIGALLOWED: Self,Other
+            RUNDECK_PLUGIN_CLUSTER_REMOTEEXECUTION_ACTIVEONLY: 'true'
+            RUNDECK_PLUGIN_CLUSTER_HEARTBEAT_CONSIDERDEAD: 180
+            RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_ENABLED:  'true'
+            RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_POLICY:  any
+            RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_CONFIG_ALLOWED: 'true'
+            RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_DELAY:  30
+            RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_SLEEP:  30
+            RUNDECK_PLUGIN_CLUSTER_REMOTEEXECUTION_PREFERREDTAGS: '*'
+            RUNDECK_PLUGIN_CLUSTER_RECOVEREXECUTIONS_ENABLED:  'true'
+            RUNDECK_PLUGIN_CLUSTER_RECOVEREXECUTIONS_POLICY:  Any
+            RUNDECK_PLUGIN_CLUSTER_RECOVEREXECUTIONS_DELAY:  60
+            RUNDECK_PLUGIN_CLUSTER_RECOVEREXECUTIONS_SLEEP:  180
+        ports:
+          - 4440:4440
+        expose:
+          - 4440
+        volumes:
+          - ./rundeckpro-license.key:/home/rundeck/etc/rundeckpro-license.key    
+          
+    rundeck2:
+        image: rundeckpro/enterprise:5.2.0
+        container_name: rundeck2
+        links:
+          - postgres
+        environment:
+            RUNDECK_URL: http://localhost:4440
+            RUNDECK_GRAILS_URL: http://localhost:4441
+            RUNDECK_SERVER_ADDRESS: 0.0.0.0
+            RUNDECK_DATABASE_DRIVER: org.postgresql.Driver
+            RUNDECK_DATABASE_USERNAME: rundeckuser
+            RUNDECK_DATABASE_PASSWORD: rundeckpassword
+            RUNDECK_DATABASE_URL: jdbc:postgresql://postgres/rundeck?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+            #generados con uuidgen
+            RUNDECK_SERVER_UUID: 1FC16DA1-F17B-4E4A-AE35-3C52598D8FD6
+            RUNDECK_SERVER_FORWARDED: 'true'
+            #remote execution 
+            RUNDECK_PLUGIN_CLUSTER_REMOTEEXECUTION_ENABLED: 'true'
+            RUNDECK_PLUGIN_CLUSTER_REMOTEEXECUTION_POLICY: RoundRobin
+            RUNDECK_PLUGIN_CLUSTER_REMOTEEXECUTION_CONFIGALLOWED: Self,Other
+            RUNDECK_PLUGIN_CLUSTER_REMOTEEXECUTION_ACTIVEONLY: 'true'
+            RUNDECK_PLUGIN_CLUSTER_HEARTBEAT_CONSIDERDEAD: 180
+            RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_ENABLED:  'true'
+            RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_POLICY:  any
+            RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_CONFIG_ALLOWED: 'true'
+            RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_DELAY:  30
+            RUNDECK_PLUGIN_CLUSTER_AUTOTAKEOVER_SLEEP:  30
+            RUNDECK_PLUGIN_CLUSTER_REMOTEEXECUTION_PREFERREDTAGS: '*'
+            RUNDECK_PLUGIN_CLUSTER_RECOVEREXECUTIONS_ENABLED:  'true'
+            RUNDECK_PLUGIN_CLUSTER_RECOVEREXECUTIONS_POLICY:  Any
+            RUNDECK_PLUGIN_CLUSTER_RECOVEREXECUTIONS_DELAY:  60
+            RUNDECK_PLUGIN_CLUSTER_RECOVEREXECUTIONS_SLEEP:  180
+            
+        ports:
+          - 4441:4440
+        expose:
+          - 4441
+        volumes:
+        - ./rundeckpro-license.key:/home/rundeck/etc/rundeckpro-license.key
+    
+    #DB     
+    postgres:
+        image: postgres
+        expose:
+          - 5432
+        environment:
+          POSTGRES_DB: rundeck
+          POSTGRES_USER: rundeckuser
+          POSTGRES_PASSWORD: rundeckpassword
+        ports:
+          - 5432:5432
+        volumes:
+          - "./database:/var/lib/postgresql/data"
